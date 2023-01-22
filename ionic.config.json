@@ -1,0 +1,7 @@
+{
+  "name": "northman-mybh-shell2",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
