@@ -22,6 +22,7 @@ log.txt
 /www
 /platforms
 /plugins
+.ionic-cloud.yaml
 
 # Compiled output
 /dist

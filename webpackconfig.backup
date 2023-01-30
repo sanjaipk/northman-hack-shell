@@ -1,0 +1,55 @@
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const mf = require("@angular-architects/module-federation/webpack");
+const path = require("path");
+const share = mf.share;
+const isCapBuild = process.env.CAP_BUILD;
+const remotes =
+  isCapBuild == null
+    ? {
+        //mfe2: 'mfe2@http://localhost:4005/remoteEntry.js' - doe not matter for poly repo scenario
+      }
+    : {
+        mfe2: `mfe2@account/remoteEntry.js`,
+        mfe1sa: `mfe1sa@account/remoteEntry.js`
+      };
+
+const sharedMappings = new mf.SharedMappings();
+sharedMappings.register(path.join(__dirname, "tsconfig.json"), [
+  /* mapped paths to share */
+]);
+
+module.exports = {
+  output: {
+    uniqueName: "shell",
+  },
+  optimization: {
+    runtimeChunk: false,
+  },
+  resolve: {
+    alias: {
+      ...sharedMappings.getAliases(),
+    },
+  },
+  experiments: {
+    outputModule: true,
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      library: { type: "module" },
+
+      // For hosts (please adjust)
+      remotes: remotes,
+
+      shared: {
+        ...mf.shareAll({
+          singleton: true,
+          strictVersion: true,
+          requiredVersion: "auto",
+        }),
+        ...sharedMappings.getDescriptors(),
+      },
+    }),
+    sharedMappings.getPlugin(),
+  ],
+};
+
